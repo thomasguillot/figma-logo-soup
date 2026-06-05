@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root {
+        /* Fallbacks so the panel is still legible if theme vars are ever absent. */
+        --bg: var(--figma-color-bg, #ffffff);
+        --bg-secondary: var(--figma-color-bg-secondary, #f5f5f5);
+        --text: var(--figma-color-text, #1e1e1e);
+        --text-secondary: var(--figma-color-text-secondary, #6b6b6b);
+        --border: var(--figma-color-border, #e6e6e6);
+        --brand: var(--figma-color-bg-brand, #0d99ff);
+        --brand-hover: var(--figma-color-bg-brand-hover, #0a7ed9);
+        --on-brand: var(--figma-color-text-onbrand, #ffffff);
+        --track: var(--figma-color-bg-tertiary, #e6e6e6);
+        --disabled-bg: var(--figma-color-bg-disabled, #e6e6e6);
+        --disabled-text: var(--figma-color-text-disabled, #b3b3b3);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font: 11px/1.4 Inter, "Helvetica Neue", sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        /* Full-height column: controls / previewbar / footer are fixed; preview fills the rest. */
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #controls { padding: 12px 16px; border-bottom: 1px solid var(--border); flex: none; }
+
+      /* Slider field: label + live value above a full-width range. */
+      .ls-field { display: block; margin: 0 0 14px; }
+      .ls-field:last-child { margin-bottom: 0; }
+      .ls-field-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      .ls-label { color: var(--text); font-weight: 500; }
+
+      /* Editable number field — borderless until hover/focus, like Figma's inputs. */
+      .ls-num {
+        width: 52px;
+        padding: 3px 6px;
+        font: inherit;
+        text-align: right;
+        color: var(--text);
+        background: var(--bg);
+        border: 1px solid transparent;
+        border-radius: 3px;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+      .ls-num:hover { border-color: var(--border); }
+      .ls-num:focus {
+        outline: none;
+        border-color: var(--brand);
+        background: var(--bg-secondary);
+      }
+      .ls-num::-webkit-inner-spin-button,
+      .ls-num::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      /* Checkbox row. */
+      .ls-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 12px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .ls-row:last-child { margin-bottom: 0; }
+
+      /* Native-feeling range slider. */
+      .ls-range {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 16px;
+        margin: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+      .ls-range::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 2px;
+        background: var(--track);
+      }
+      .ls-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        margin-top: -4px;
+        border-radius: 50%;
+        background: var(--bg);
+        border: 1px solid var(--brand);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+      }
+      .ls-range:hover::-webkit-slider-thumb { background: var(--brand); }
+      .ls-range:focus { outline: none; }
+      .ls-range:focus::-webkit-slider-thumb {
+        background: var(--brand);
+        box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--brand);
+      }
+
+      /* Native-feeling checkbox. */
+      .ls-check {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        margin: 0;
+        flex: 0 0 auto;
+        border: 1px solid var(--text-secondary);
+        border-radius: 3px;
+        background: var(--bg);
+        cursor: pointer;
+        position: relative;
+      }
+      .ls-check:checked {
+        background: var(--brand);
+        border-color: var(--brand);
+      }
+      .ls-check:checked::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        width: 3px;
+        height: 7px;
+        border: solid var(--on-brand);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
+
+      #previewbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px 0;
+        flex: none;
+      }
+      #previewbar > span { color: var(--text-secondary); font-weight: 500; }
+      /* Fills all remaining height; centers the preview surface on both axes. */
+      #preview {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        padding: 16px;
+        overflow: auto;
+      }
+
+      #footer {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-top: 1px solid var(--border);
+        flex: none;
+      }
+      #status { color: var(--text-secondary); flex: 1; }
+
+      button {
+        font: inherit;
+        font-weight: 600;
+        border: 0;
+        border-radius: 6px;
+        padding: 7px 14px;
+        cursor: pointer;
+      }
+      #apply { background: var(--brand); color: var(--on-brand); }
+      #apply:hover:not(:disabled) { background: var(--brand-hover); }
+      #apply:disabled { background: var(--disabled-bg); color: var(--disabled-text); cursor: default; }
+      #theme {
+        background: var(--bg-secondary);
+        color: var(--text);
+        font-weight: 500;
+        padding: 5px 10px;
+      }
+      #theme:hover { background: var(--track); }
+    </style>
+  </head>
+  <body>
+    <div id="controls"></div>
+    <div id="previewbar"><span>Preview</span><button id="theme">Dark bg</button></div>
+    <div id="preview"></div>
+    <div id="footer">
+      <span id="status">Select one or more logos on the canvas.</span>
+      <button id="apply" disabled>Apply</button>
+    </div>
+    <script>/*__BUNDLE__*/</script>
+  </body>
+</html>
